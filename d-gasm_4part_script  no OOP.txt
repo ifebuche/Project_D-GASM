@@ -1,0 +1,219 @@
+###############
+## ## Part 1
+## Collation
+###############
+import os
+
+x = os.listdir()
+
+AtList, BuList, OsList, PoList, ObList = [], [], [], [], []
+
+for line in x:
+    if "Atiku" in line:
+        AtList.append(line)
+    elif "Buhari" in line:
+        BuList.append(line)
+    elif "Osinbajo" in line:
+        OsList.append(line)
+    elif "Peter" in line:
+        PoList.append(line)
+    elif "Oby" in line:
+        ObList.append(line) 
+
+All = [AtList, BuList, OsList, PoList, ObList]
+
+print("Success!")
+
+
+###############
+## ## Part 2
+## Data Wrangling - PoList of Part 1 in use here
+###############
+
+#Pulling juicy summary parts from json of Tweets
+import pandas
+
+name, tweet, time, location, followers, friends, status_count = [], [], [], [], [], [], []
+for item in PoList:
+    print("Processing " + item + " ...")        
+    df = pandas.read_json(item, lines = True)
+
+    #Get Screen name
+    for line in df.user:
+        n = line.get('screen_name')
+        name.append(n)
+        
+    #Get Tweet removing all non-characters
+    for line in df.text:
+        t = str(line).lower()
+        t.replace('[^a-zA-Z]', '')
+        tweet.append(t)
+    
+    #Get time
+    for line in df.created_at:
+        time.append(line)
+    
+    #Get Location converting to lowercase
+    for line in df.user:
+        x = line.get('location')
+        x = str(x).lower()
+        location.append(x)
+
+    #Get Followers
+    for line in df.user:
+        f = line.get('followers_count')
+        followers.append(f)
+
+    #Get Friends
+    for line in df.user:
+        fr = line.get('friends_count')
+        friends.append(fr)
+
+    #Get Status count
+    for line in df.user:
+        s = line.get('statuses_count')
+        status_count.append(s)
+    print(item + " done!")
+
+
+#Build into a df
+TweetI = pandas.DataFrame(columns=('name','location', 'tweet','friends', 'followers', 'status_count'))
+
+TweetI["name"] = name
+TweetI["location"] = location
+TweetI['tweet'] = tweet
+TweetI['time'] = time
+TweetI["friends"]= friends
+TweetI['followers'] = followers
+TweetI['status_count'] = status_count
+
+##Write df to csv file
+TweetI.to_csv("PObiJuice.csv")
+
+##Sort_values takes 'by=' or just the column name
+## Get a summary of the juice
+loc_sum = TweetI.groupby('location').count().sort_values(by = 'name', ascending = False)
+name_sum = TweetI.groupby('name').count().sort_values(by = 'tweet', ascending = False)
+time_sum = TweetI.groupby('time').count().sort_values("name", ascending = False)
+
+##Write juice summary to csv
+loc_sum.to_csv('locJuicePo.csv')
+name_sum.to_csv('nameJuicePo.csv')
+time_sum.to_csv('timeJuicePo.csv')
+
+print("Success!")
+
+
+
+###############
+## ## Part 3
+## More Analysis
+###############
+
+#Bring in needed libraries
+import pandas 
+from textblob import TextBlob
+import matplotlib.pyplot as plt
+import pandas
+
+#Import formatted tweet info converted to csv
+df = pandas.read_csv("CandidateJuice.csv")
+#Remove the index from the scv file
+del df["Unnamed: 0"] 
+
+
+#Create a new column from df.time, 'date_dym' leaving the first 9 elements and change df.time to deleting/repalcing only the first 10
+df['date_ymd'] = df.loc[:,"time"].map(lambda x: x.replace(x[10:], ''))
+df['time'] = df.loc[:,"time"].map(lambda x: x.replace(x[:11], ''))
+
+#sort by date of tweet and time columns
+TweetsByDate = df.sort_values(["date_ymd", "time"], ascending = True)
+#TweetsByDate.head()
+
+#Sentiment Analysis
+CandidateTweets = TweetsByDate.tweet
+
+#Convert tweets to lowercase
+CandidateTweets = CandidateTweets.map(lambda x: str(x).lower())
+
+#Remove non-characters from tweets
+CandidateTweets = CandidateTweets.map(lambda x: x.replace('[^a-zA-Z]', ''))
+
+theFile = CandidateTweets
+
+sentiment = []
+polarity = 0
+positive = 0
+negative = 0
+neutral = 0
+
+for tweet in theFile:
+    analysis=TextBlob(str(tweet))
+    polarity += analysis.sentiment.polarity
+    if (analysis.sentiment.polarity == 0):
+        sentiment.append("neutral")
+    elif (analysis.sentiment.polarity < 0.00):
+        sentiment.append("negative")
+    elif (analysis.sentiment.polarity > 0.00):
+        sentiment.append("positive")
+        
+print("Done Analysing sentimetns!")
+
+#Add a column of the analysed sentiments
+TweetsByDate["sentiment"] = sentiment
+
+#Sort the df into sentiment groups
+PosTweets = TweetsByDate[TweetsByDate.sentiment == 'positive']
+NegTweets = TweetsByDate[TweetsByDate.sentiment == 'negative']
+NuetTweets = TweetsByDate[TweetsByDate.sentiment == 'neutral']
+
+#Remove mentions of rival candidate from neut, pos and neg tweets write into new values
+rival = rivalName #as string
+n_PosTweets, n_NegTweets, n_NuetTweets = [], [], []
+for line in PosTweets.tweet:
+    if rival in line:
+        n_PosTweets.append(line)
+
+for line in NegTweets.tweet:
+    if rival in line:
+        n_NegTweets.append(line)
+
+for line in NuetTweets.tweet:
+    if rival in line:
+        n_NuetTweets.append(line)
+      
+#rename to Cleaned
+CleanedCandidateTweets = TweetsByDate
+
+
+###############
+## ## Part 4
+## Pie Plot for general overview
+###############
+
+#Data to plot
+labels = 'positive', 'negative'
+sizes = [len(PosTweets), len(NegTweets)]
+colors = ['green', 'red']
+explode = (0.1, 0)  # explode 1st slice
+
+#Plot
+plt.pie(sizes, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', shadow=True, startangle=140)
+
+plt.axis('equal')
+plt.title("Sentiment Analysis for " + "Candidate" + "\n" + "with a total of " + str(len(theFile)) +" " + "tweets")
+plt.show()
+
+#After opponent weeding
+#Data to plot
+labels = 'positive', 'negative'
+sizes = [(len(PosTweets)-len(n_PosTweets)), (len(NegTweets)-len(n_NegTweets))]
+colors = ['green', 'red']
+explode = (0.1, 0)  # explode 1st slice
+
+#Plot
+plt.pie(sizes, explode=explode, labels=labels, colors=colors, autopct='%1.1f%%', shadow=True, startangle=140)
+
+plt.axis('equal')
+plt.title("Sentiment Analysis for " + "Candidate" + "\n" + "with a total of " + str(len(theFile)) +" " + "tweets")
+plt.show()
