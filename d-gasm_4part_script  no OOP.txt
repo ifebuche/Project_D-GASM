@@ -11,7 +11,7 @@ AtList, BuList, OsList, PoList, ObList = [], [], [], [], []
 for line in x:
     if "Atiku" in line:
         AtList.append(line)
-    elif "Buhari" in line:
+    elif "Candidate" in line:
         BuList.append(line)
     elif "Osinbajo" in line:
         OsList.append(line)
@@ -107,7 +107,7 @@ print("Success!")
 
 ###############
 ## ## Part 3
-## More Analysis
+## Sentiment Analysis
 ###############
 
 #Bring in needed libraries
@@ -185,9 +185,159 @@ for line in NuetTweets.tweet:
 #rename to Cleaned
 CleanedCandidateTweets = TweetsByDate
 
-
 ###############
 ## ## Part 4
+## More Cleaning then Analysis
+###############
+
+#Prepare for state sentiments
+state = []
+state_pos = [] #neg sentiment number from states
+state_neg = [] #pos sentiment number from states
+
+print("states cleaning...")
+print("lagos...")
+#Change all lines of Lagos mention to lagos in location
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Lagos') if 'lagos' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Lagos') if 'lasgidi' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Lagos') if 'eko' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Lagos') if 'lagos, nigeria' in str(x) else str(x))
+lagos = CleanedCandidateTweets[CleanedCandidateTweets['location'] == 'Lagos'].sort_values("sentiment")
+posLagos = len(lagos[lagos['sentiment'] == 'positive'])
+negLagos = len(lagos[lagos['sentiment'] == 'negative'])
+state.append("Lagos")
+state_pos.append(str(posLagos))
+state_neg.append(str(negLagos))
+
+print("abuja...")
+#Change all lines of abuja mention to abuja in location
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Abuja') if 'abuja' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Abuja') if 'fct' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Abuja') if 'abuja, nigeria' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Abuja') if 'fct, nigeria' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Abuja') if 'aso rock' in str(x) else str(x))
+abuja = CleanedCandidateTweets[CleanedCandidateTweets['location'] == 'Abuja'].sort_values("sentiment")
+posAbuja = len(abuja[abuja['sentiment'] == 'positive'])
+negAbuja = len(abuja[abuja['sentiment'] == 'negative'])
+state.append("Abuja")
+state_pos.append(str(posAbuja))
+state_neg.append(str(negAbuja))
+
+print("kano...")
+#Change all lines of kano mention to kano in location
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Kano') if 'kano' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Kano') if 'kano, nigeria' in str(x) else str(x))
+kano = CleanedCandidateTweets[CleanedCandidateTweets['location'] == 'Kano'].sort_values("sentiment")
+posKano = len(kano[kano['sentiment'] == 'positive'])
+negKano = len(kano[kano['sentiment'] == 'negative'])
+state.append("Kano")
+state_pos.append(str(posKano))
+state_neg.append(str(negKano))
+
+print("katsina...")
+#Change all lines of katsina mention to katsina in location
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Katsina') if 'katsina' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Katsina') if 'katsina, nigeria' in str(x) else str(x))
+katsina = CleanedCandidateTweets[CleanedCandidateTweets['location'] == 'Katsina'].sort_values("sentiment")
+posKatsina = len(katsina[katsina['sentiment'] == 'positive'])
+negKatsina = len(katsina[katsina['sentiment'] == 'negative'])
+state.append("Katsina")
+state_pos.append(str(posKatsina))
+state_neg.append(str(negKatsina))
+
+print("adamawa...")
+#Change all lines of adamawa mention to adamawa in location
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Adamawa') if 'adamawa' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Adamawa') if 'adamawa, nigeria' in str(x) else str(x))
+adamawa = CleanedCandidateTweets[CleanedCandidateTweets['location'] == 'Adamawa'].sort_values("sentiment")
+posAdamawa = len(adamawa[adamawa['sentiment'] == 'positive'])
+negAdamawa = len(adamawa[adamawa['sentiment'] == 'negative'])
+state.append("Adamawa")
+state_pos.append(str(posAdamawa))
+state_neg.append(str(negAdamawa))
+
+print("anambra...")
+#Change all lines of Anambra mention to Anambra in location
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Anambra') if 'anambra' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Anambra') if 'nnewi' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Anambra') if 'awka' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Anambra') if 'onitsha' in str(x) else str(x))
+anambra = CleanedCandidateTweets[CleanedCandidateTweets['location'] == 'Anambra'].sort_values("sentiment")
+posAnambra = len(anambra[anambra['sentiment'] == 'positive'])
+negAnambra = len(anambra[anambra['sentiment'] == 'negative'])
+state.append("Anambra")
+state_pos.append(str(posAnambra))
+state_neg.append(str(negAnambra))
+
+print("enugu...")
+#Try to get all Enugu
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Enugu') if 'enugu' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Enugu') if '042' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Enugu') if 'enugu, nigeria' in str(x) else str(x))
+enugu = CleanedCandidateTweets[CleanedCandidateTweets['location'] == 'Enugu'].sort_values("sentiment")
+posEnugu = len(enugu[enugu['sentiment'] == 'positive'])
+negEnugu = len(enugu[enugu['sentiment'] == 'negative'])
+state.append("Enugu")
+state_pos.append(str(posEnugu))
+state_neg.append(str(negEnugu))
+
+print("rivers...")
+#Change all lines of PH mention to PH in location
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Rivers') if 'ph' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Rivers') if 'port harcourt' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'Rivers') if 'portharcourt' in str(x) else str(x))
+rivers = CleanedCandidateTweets[CleanedCandidateTweets['location'] == 'Rivers'].sort_values("sentiment")
+posRivers = len(rivers[rivers['sentiment'] == 'positive'])
+negRivers = len(rivers[rivers['sentiment'] == 'negative'])
+state.append("Rivers")
+state_pos.append(str(posRivers))
+state_neg.append(str(negRivers))
+
+print("uk...")
+#Try to get all UK
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'UK') if 'london' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'UK') if 'london, uk' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'UK') if 'london, england' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'UK') if 'uk' in str(x) else str(x))
+CleanedCandidateTweets["location"] = CleanedCandidateTweets["location"].map(lambda x: x.replace(x, 'UK') if 'united kingdom' in str(x) else str(x))
+uk = CleanedCandidateTweets[CleanedCandidateTweets['location'] == 'UK'].sort_values("sentiment")
+posUK = len(uk[uk['sentiment'] == 'positive'])
+negUK = len(uk[uk['sentiment'] == 'negative'])
+state.append("UK")
+state_pos.append(str(posUK))
+state_neg.append(str(negUK))
+print("states done!")
+
+print("creating table of sentiments...")
+#Create a table of sentiments by states
+SentimentStates = pandas.DataFrame(columns = ["state", "positive", "negative"])
+SentimentStates["state"] = state
+SentimentStates["positive"] = state_pos
+SentimentStates["negative"] = state_neg
+print("done!")
+
+
+print("writing data to excel...")
+#Write to excel
+from pandas import ExcelWriter
+writer = ExcelWriter('CandidateSummary.xlsx')
+lagos.to_excel(writer,'lagos')
+abuja.to_excel(writer,'abuja')
+kano.to_excel(writer,'kano')
+enugu.to_excel(writer,'enugu')
+uk.to_excel(writer,'uk')
+katsina.to_excel(writer,'katsina')
+anambra.to_excel(writer,'anambra')
+adamawa.to_excel(writer,'adamawa')
+rivers.to_excel(writer,'rivers')
+SentimentStates.to_excel(writer, 'SentimentStates')
+
+writer.save()
+print("done!")
+
+
+###############
+## ## Part 5
 ## Pie Plot for general overview
 ###############
 
